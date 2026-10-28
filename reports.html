@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Buat Laporan | Midnightiesn E-REPORT</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="assets/fx.css">
+</head>
+<body>
+
+<header>
+  <div class="container nav">
+    <a class="brand" href="index.html">
+      <span class="logo-badge">M</span>
+      Midnightiesn E-Report
+    </a>
+    <a class="back" href="index.html">Kembali ke Home</a>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <h1>Buat Laporan</h1>
+    <p class="sub">Isi form di bawah untuk menyampaikan pengaduan Anda.</p>
+
+    <!-- ====== FORM ====== -->
+    <form class="card" id="reportForm">
+      <label for="kategori">Kategori</label>
+      <select id="kategori" required>
+        <option value="">Pilih kategori</option>
+        <option>Akademik</option>
+        <option>Fasilitas</option>
+        <option>Kehilangan</option>
+        <option>Anonymous</option>
+      </select>
+
+      <label for="nama">Nama pelapor</label>
+      <input id="nama" type="text" placeholder="Nama Anda">
+
+      <label for="judul">Judul laporan</label>
+      <input id="judul" type="text" placeholder="Contoh: Jaringan internet lambat" required>
+
+      <label for="isi">Isi laporan</label>
+      <textarea id="isi" placeholder="Jelaskan masalah dan kronologinya" required></textarea>
+
+      <div class="check">
+        <input id="anon" type="checkbox">
+        <label for="anon" style="margin:0;font-weight:500">Kirim sebagai anonim</label>
+      </div>
+
+      <button class="btn" type="submit">Kirim</button>
+      <div class="msg" id="msg">Laporan terkirim.</div>
+    </form>
+
+    <!-- ====== DAFTAR LAPORAN ====== -->
+    <h1 style="font-size:1.4rem">Laporan Terbaru</h1>
+    <div class="card" id="list"></div>
+  </div>
+</main>
+
+<footer>© Copyright by Midnightiesn 2026. All rights reserved.</footer>
+
+<script>
+  // Laporan contoh (ubah/hapus sesuai kebutuhan)
+  const contoh = [
+    {kategori:"Fasilitas", judul:"Jaringan internet lambat", nama:"Razan Bopung", waktu:"1 Days Ago", isi:"Jaringan wifi di ruang 3.3 atau X RPL B sangat lambat dan sering putus, mengganggu proses belajar mengajar."},
+    {kategori:"Anonymous", judul:"Ada anak yang jarang mandi", nama:"Wibowo", waktu:"2 Days Ago", isi:"Keluhan mengenai bau tidak sedap di ruang bersama yang mengganggu kenyamanan belajar.", link:"detailr.html"},
+    {kategori:"Akademik", judul:"Pencurian uang di asrama", nama:"Ale", waktu:"3 Days Ago", isi:"Di asrama 2.6 banyak santri yang kehilangan uangnya, mohon pihak sekolah untuk menindaklanjuti."}
+  ];
+
+  const KEY = "amba_reports";
+  const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch { return []; } };
+  const save = d => { try { localStorage.setItem(KEY, JSON.stringify(d)); } catch {} };
+  const esc = s => s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  function render(){
+    const semua = [...load(), ...contoh];
+    document.getElementById('list').innerHTML = semua.map(r => `
+      <div class="item">
+        <span class="tag">${esc(r.kategori)}</span>
+        <h3>${r.link ? `<a href="${r.link}">${esc(r.judul)}</a>` : esc(r.judul)}</h3>
+        <div class="meta">By: ${esc(r.nama)} · ${esc(r.waktu)}</div>
+        <p>${esc(r.isi)}</p>
+      </div>`).join('') || '<div class="empty">Belum ada laporan.</div>';
+  }
+
+  document.getElementById('reportForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const anon = document.getElementById('anon').checked;
+    const kat = document.getElementById('kategori').value;
+    const data = load();
+    data.unshift({
+      kategori: anon ? "Anonymous" : kat,
+      judul: document.getElementById('judul').value.trim(),
+      nama: anon ? "Anonim" : (document.getElementById('nama').value.trim() || "Tanpa nama"),
+      waktu: "Baru saja",
+      isi: document.getElementById('isi').value.trim()
+    });
+    save(data);
+    e.target.reset();
+    const msg = document.getElementById('msg');
+    msg.style.display = 'block';
+    setTimeout(() => msg.style.display = 'none', 3000);
+    render();
+  });
+
+  render();
+</script>
+<script src="assets/fx.js" defer></script>
+</body>
+</html>
